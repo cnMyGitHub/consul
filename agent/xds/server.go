@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"sync/atomic"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
 
 	envoy "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoycore "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
@@ -285,8 +286,13 @@ func (s *Server) process(stream ADSStream, reqCh <-chan *envoy.DiscoveryRequest)
 			extendAuthTimer()
 
 		case req, ok = <-reqCh:
-			s.Logger.Info("[xDS] received discovery request",
-				"typeUrl", req.TypeUrl, "ok", ok)
+			{
+				typeURL := ""
+				if req != nil {
+					typeURL = req.TypeUrl
+				}
+				s.Logger.Info("[xDS] received discovery request", "typeUrl", typeURL, "ok", ok)
+			}
 			if !ok {
 				// reqCh is closed when stream.Recv errors which is how we detect client
 				// going away. AFAICT the stream.Context() is only canceled once the
